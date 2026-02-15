@@ -104,6 +104,15 @@ python -c "from langgraph.prebuilt import create_react_agent; print('langgraph i
 1. 首先运行后端服务 `python 01_backendServer.py`
 2. 再运行前端服务 `python 02_frontendServer.py`
 
+> [!IMPORTANT]
+>
+> Windows 环境下请**优先使用** `python 01_backendServer.py` 启动后端，不建议直接使用
+> `uvicorn 01_backendServer:app ...`。
+>
+> 原因：Psycopg 异步连接池在 Windows 下要求 `WindowsSelectorEventLoopPolicy`，
+> 若由外部命令提前创建了 `ProactorEventLoop`，会出现
+> `Psycopg cannot use the 'ProactorEventLoop'` 报错。
+
 
 
 ### 3.2.1 测试HITL对工具请求进行人类反馈
