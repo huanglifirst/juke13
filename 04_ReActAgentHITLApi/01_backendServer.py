@@ -383,13 +383,14 @@ async def process_agent_result(
 # 生命周期函数 app应用初始化函数
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    pool = None
     try:
         loop_name = type(asyncio.get_running_loop()).__name__
         if sys.platform == "win32" and "ProactorEventLoop" in loop_name:
-            raise RuntimeError(
-                "检测到 ProactorEventLoop。Psycopg 异步模式在 Windows 下不兼容该事件循环；"
-                "请使用 `python 01_backendServer.py` 启动服务，"
-                "或在任何 asyncio 事件循环创建前设置 WindowsSelectorEventLoopPolicy。"
+            logger.warning(
+                "检测到 ProactorEventLoop，可能与 Psycopg 异步模式不兼容。"
+                "已在启动阶段设置 WindowsSelectorEventLoopPolicy，"
+                "若仍连接失败请改用 Python 3.10/3.11 并确认无其他组件提前创建事件循环。"
             )
 
         # 实例化异步Redis会话管理器 并存储为单实例
@@ -437,9 +438,11 @@ async def lifespan(app: FastAPI):
     # 清理资源
     finally:
         # 关闭Redis连接
-        await app.state.session_manager.close()
+        if hasattr(app.state, "session_manager"):
+            await app.state.session_manager.close()
         # 关闭PostgreSQL连接池
-        await pool.close()
+        if pool is not None:
+            await pool.close()
         logger.info("关闭服务并完成资源清理")
 
 # 实例化app 并使用生命周期上下文管理器进行app初始化
