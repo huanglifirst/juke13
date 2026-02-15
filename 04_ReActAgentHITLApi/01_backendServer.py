@@ -6,7 +6,6 @@ import sys
 import asyncio
 
 def ensure_windows_selector_policy():
-    """在 Windows 环境强制使用 SelectorEventLoop，避免 psycopg 异步连接与 Proactor 冲突。"""
     if sys.platform == 'win32':
         asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
         print("✅ [启动] 事件循环策略已设置为 WindowsSelectorEventLoopPolicy")
@@ -386,11 +385,12 @@ async def lifespan(app: FastAPI):
     pool = None
     try:
         loop_name = type(asyncio.get_running_loop()).__name__
+        logger.info(f"当前事件循环: {loop_name}")
         if sys.platform == "win32" and "ProactorEventLoop" in loop_name:
-            logger.warning(
-                "检测到 ProactorEventLoop，可能与 Psycopg 异步模式不兼容。"
-                "已在启动阶段设置 WindowsSelectorEventLoopPolicy，"
-                "若仍连接失败请改用 Python 3.10/3.11 并确认无其他组件提前创建事件循环。"
+            raise RuntimeError(
+                "检测到 ProactorEventLoop，Psycopg 异步模式在 Windows 下不兼容该事件循环。"
+                "请确保使用 `python 01_backendServer.py` 启动，"
+                "并在其他依赖导入前设置 WindowsSelectorEventLoopPolicy。"
             )
 
         # 实例化异步Redis会话管理器 并存储为单实例
@@ -649,7 +649,23 @@ async def delete_agent_session(user_id: str):
 
 
 # 启动服务器
+async def start_server() -> None:
+    config = uvicorn.Config(
+        app,
+        host=Config.HOST,
+        port=Config.PORT,
+        loop="asyncio",
+        workers=1
+    )
+    server = uvicorn.Server(config)
+    await server.serve()
+
+
 if __name__ == "__main__":
     ensure_windows_selector_policy()
-
-    uvicorn.run(app, host=Config.HOST, port=Config.PORT, loop="asyncio", workers=1)
+    if sys.platform == "win32":
+        loop = asyncio.SelectorEventLoop()
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(start_server())
+    else:
+        asyncio.run(start_server())
