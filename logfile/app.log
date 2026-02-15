@@ -1,0 +1,40 @@
+2026-02-15 15:01:41,898 - __main__ - INFO - Redis初始化成功
+2026-02-15 15:01:43,201 - utils.llms - INFO - 成功初始化 qwen LLM
+2026-02-15 15:01:43,203 - __main__ - INFO - Chat模型初始化成功
+2026-02-15 15:02:13,215 - __main__ - ERROR - 初始化失败: couldn't get a connection after 30.00 sec
+2026-02-15 15:02:13,229 - __main__ - INFO - 关闭服务并完成资源清理
+2026-02-15 15:07:50,565 - __main__ - INFO - Redis初始化成功
+2026-02-15 15:07:51,421 - utils.llms - INFO - 成功初始化 qwen LLM
+2026-02-15 15:07:51,423 - __main__ - INFO - Chat模型初始化成功
+2026-02-15 15:08:21,422 - __main__ - ERROR - 初始化失败: couldn't get a connection after 30.00 sec
+2026-02-15 15:08:21,428 - __main__ - INFO - 关闭服务并完成资源清理
+2026-02-15 15:16:05,870 - __main__ - INFO - Redis初始化成功
+2026-02-15 15:16:06,733 - utils.llms - INFO - 成功初始化 qwen LLM
+2026-02-15 15:16:06,735 - __main__ - INFO - Chat模型初始化成功
+2026-02-15 15:16:36,741 - __main__ - ERROR - 初始化失败: couldn't get a connection after 30.00 sec
+2026-02-15 15:16:36,744 - __main__ - INFO - 关闭服务并完成资源清理
+2026-02-15 15:25:04,214 - __main__ - INFO - Redis初始化成功
+2026-02-15 15:25:05,179 - utils.llms - INFO - 成功初始化 qwen LLM
+2026-02-15 15:25:05,181 - __main__ - INFO - Chat模型初始化成功
+2026-02-15 15:25:35,191 - __main__ - ERROR - 初始化失败: couldn't get a connection after 30.00 sec
+2026-02-15 15:25:35,196 - __main__ - INFO - 关闭服务并完成资源清理
+2026-02-15 15:26:49,869 - __main__ - INFO - Redis初始化成功
+2026-02-15 15:26:50,837 - utils.llms - INFO - 成功初始化 qwen LLM
+2026-02-15 15:26:50,838 - __main__ - INFO - Chat模型初始化成功
+2026-02-15 15:27:20,853 - __main__ - ERROR - 初始化失败: couldn't get a connection after 30.00 sec
+2026-02-15 15:27:20,857 - __main__ - INFO - 关闭服务并完成资源清理
+2026-02-15 15:31:52,201 - __main__ - INFO - Redis初始化成功
+2026-02-15 15:31:53,152 - utils.llms - INFO - 成功初始化 qwen LLM
+2026-02-15 15:31:53,154 - __main__ - INFO - Chat模型初始化成功
+2026-02-15 15:32:23,162 - __main__ - ERROR - 初始化失败: couldn't get a connection after 30.00 sec
+2026-02-15 15:32:23,169 - __main__ - INFO - 关闭服务并完成资源清理
+2026-02-15 15:43:35,260 - __main__ - INFO - Redis初始化成功
+2026-02-15 15:43:36,328 - utils.llms - INFO - 成功初始化 qwen LLM
+2026-02-15 15:43:36,329 - __main__ - INFO - Chat模型初始化成功
+2026-02-15 15:44:06,334 - __main__ - ERROR - 初始化失败: couldn't get a connection after 30.00 sec
+2026-02-15 15:44:06,342 - __main__ - INFO - 关闭服务并完成资源清理
+2026-02-15 20:20:32,247 - __main__ - INFO - Redis初始化成功
+2026-02-15 20:20:33,168 - utils.llms - INFO - 成功初始化 qwen LLM
+2026-02-15 20:20:33,169 - __main__ - INFO - Chat模型初始化成功
+2026-02-15 20:21:03,183 - __main__ - ERROR - 初始化失败: couldn't get a connection after 30.00 sec
+2026-02-15 20:21:03,197 - __main__ - INFO - 关闭服务并完成资源清理
