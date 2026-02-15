@@ -31,6 +31,7 @@ pip install langgraph==0.4.5
 pip install langchain==0.3.25
 pip install langchain-openai==0.3.17
 pip install langgraph-checkpoint-postgres==2.0.21
+pip uninstall -y langgraph-prebuilt
 pip install rich==14.0.0
 pip install fastapi==0.115.12
 pip install redis==6.2.0 
@@ -40,6 +41,47 @@ pip install concurrent-log-handler==0.9.28
 > [!CAUTION]
 >
 > 建议先使用要求的对应版本进行本项目测试，避免因版本升级造成的代码不兼容。测试通过后，可进行升级测试
+
+> [!IMPORTANT]
+>
+> 如果出现 `ModuleNotFoundError: No module named 'langgraph._internal'`，通常是因为镜像源把
+> `langgraph-prebuilt` 升到了 1.x，和本项目的 `langgraph==0.4.5` 不兼容。
+
+推荐在当前 Conda 环境执行下面的“重装对齐”命令（Windows PowerShell）：
+
+```powershell
+pip uninstall -y langgraph-prebuilt langgraph langgraph-checkpoint langgraph-checkpoint-postgres langchain-core
+pip install "langchain-core>=0.3.59,<1.0.0"
+pip install --no-deps "langgraph==0.4.5" "langgraph-prebuilt>=0.1.8,<1.0.0" "langgraph-checkpoint>=2.0.26,<3.0.0" "langgraph-checkpoint-postgres==2.0.21"
+pip check
+python -c "from langgraph.prebuilt import create_react_agent; print('langgraph import ok')"
+```
+
+如果 `pip check` 仍提示冲突，建议新建一个干净环境（Python 3.10/3.11）后再安装本项目依赖。
+
+> [!IMPORTANT]
+>
+> 你如果在同一个 Conda 环境里同时安装了 `langchain 1.x / langgraph 1.x`（例如用于其它项目），
+> 非常容易和本项目的 `langchain 0.3.x / langgraph 0.4.x` 冲突。建议为本项目单独创建环境，避免版本串线。
+
+> [!TIP]
+>
+> 如果启动日志里反复出现
+> `Psycopg cannot use the 'ProactorEventLoop'`，这通常**不是 PostgreSQL Docker 本身故障**，
+> 而是 Windows 事件循环类型不兼容导致连接池无法建连。
+>
+> 可先用下面命令分别确认：
+>
+> 1. PostgreSQL 容器是否正常
+> ```bash
+> docker ps
+> docker logs <postgres_container_name>
+> ```
+>
+> 2. 当前 Python 事件循环类型（应为 `SelectorEventLoop`）
+> ```bash
+> python -c "import asyncio; print(type(asyncio.new_event_loop()).__name__)"
+> ```
 
 
 
@@ -101,8 +143,3 @@ pip install concurrent-log-handler==0.9.28
 ### 3.2.2 测试客户端和服务端故障恢复
 
 1. 上海的天气如何
-
-
-
-
-

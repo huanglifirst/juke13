@@ -5,9 +5,13 @@
 import sys
 import asyncio
 
-if sys.platform == 'win32':
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-    print("✅ [启动] 事件循环策略已设置为 WindowsSelectorEventLoopPolicy")
+def ensure_windows_selector_policy():
+    if sys.platform == 'win32':
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+        print("✅ [启动] 事件循环策略已设置为 WindowsSelectorEventLoopPolicy")
+
+
+ensure_windows_selector_policy()
 
 # ==========================================
 # 【第二优先级】导入标准库和第三方基础库
@@ -53,10 +57,6 @@ from utils.tools import get_tools
 # 【验证】打印导入顺序确认
 # ==========================================
 print("✅ [启动] 所有模块导入完成，顺序正确")
-
-from utils.config import Config
-from utils.llms import get_llm
-from utils.tools import get_tools
 
 
 # 设置日志基本配置，级别为DEBUG或INFO
@@ -382,7 +382,17 @@ async def process_agent_result(
 # 生命周期函数 app应用初始化函数
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    pool = None
     try:
+        loop_name = type(asyncio.get_running_loop()).__name__
+        logger.info(f"当前事件循环: {loop_name}")
+        if sys.platform == "win32" and "ProactorEventLoop" in loop_name:
+            raise RuntimeError(
+                "检测到 ProactorEventLoop，Psycopg 异步模式在 Windows 下不兼容该事件循环。"
+                "请确保使用 `python 01_backendServer.py` 启动，"
+                "并在其他依赖导入前设置 WindowsSelectorEventLoopPolicy。"
+            )
+
         # 实例化异步Redis会话管理器 并存储为单实例
         app.state.session_manager = RedisSessionManager(
             Config.REDIS_HOST,
@@ -428,9 +438,11 @@ async def lifespan(app: FastAPI):
     # 清理资源
     finally:
         # 关闭Redis连接
-        await app.state.session_manager.close()
+        if hasattr(app.state, "session_manager"):
+            await app.state.session_manager.close()
         # 关闭PostgreSQL连接池
-        await pool.close()
+        if pool is not None:
+            await pool.close()
         logger.info("关闭服务并完成资源清理")
 
 # 实例化app 并使用生命周期上下文管理器进行app初始化
@@ -637,8 +649,23 @@ async def delete_agent_session(user_id: str):
 
 
 # 启动服务器
-if __name__ == "__main__":
-    if sys.platform == "win32":
-        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+async def start_server() -> None:
+    config = uvicorn.Config(
+        app,
+        host=Config.HOST,
+        port=Config.PORT,
+        loop="asyncio",
+        workers=1
+    )
+    server = uvicorn.Server(config)
+    await server.serve()
 
-    uvicorn.run(app, host=Config.HOST, port=Config.PORT)
+
+if __name__ == "__main__":
+    ensure_windows_selector_policy()
+    if sys.platform == "win32":
+        loop = asyncio.SelectorEventLoop()
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(start_server())
+    else:
+        asyncio.run(start_server())
